@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOATs · Messi vs Ronaldo vs Neymar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #07080c;
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ========== ANIMATED BACKGROUND ========== */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            z-index: 1;
+            pointer-events: none;
+            transition: transform 0.4s ease-out;
+        }
+
+        .glow-messi {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #75aadb, #1e3a8a);
+            top: -150px; left: -100px;
+        }
+
+        .glow-ronaldo {
+            width: 550px; height: 550px;
+            background: radial-gradient(circle, #ff4d6d, #7a1224);
+            top: 30%; right: -200px;
+        }
+
+        .glow-neymar {
+            width: 480px; height: 480px;
+            background: radial-gradient(circle, #3ddc84, #0d5e2f);
+            bottom: -180px; left: 30%;
+        }
+
+        /* ========== HEADER / HERO ========== */
+        .hero {
+            position: relative;
+            z-index: 5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 7vw, 5.5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            background: linear-gradient(120deg, #75aadb 0%, #ffffff 40%, #ff4d6d 70%, #3ddc84 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: shimmer 6s ease-in-out infinite;
+            background-size: 200% auto;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: #8e97b5;
+            max-width: 620px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: #6b7494;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .scroll-hint .arrow {
+            width: 24px;
+            height: 24px;
+            border-right: 2px solid #6b7494;
+            border-bottom: 2px solid #6b7494;
+            transform: rotate(45deg);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* ========== PLAYER CARDS SECTION ========== */
+        .section-title {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 60px 20px 30px;
+        }
+
+        .section-title h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff, #8e97b5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title p {
+            color: #6b7494;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        .players-grid {
+            position: relative;
+            z-index: 5;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* ========== PLAYER CARD ========== */
+        .player-card {
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+            background: rgba(20, 24, 36, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+            cursor: pointer;
+            box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+        }
+
+        .player-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 40px 60px -20px var(--accent-glow);
+        }
+
+        .player-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 0;
+        }
+
+        .player-card:hover::before {
+            opacity: 0.08;
+        }
+
+        .player-image-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            overflow: hidden;
+            background: #0a0e15;
+            z-index: 1;
+        }
+
+        .player-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.5s;
+            filter: grayscale(0.15) contrast(1.05);
+        }
+
+        .player-card:hover .player-image {
+            transform: scale(1.08);
+            filter: grayscale(0) contrast(1.1) saturate(1.15);
+        }
+
+        .player-image-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(7,8,12,0.9) 100%);
+            z-index: 2;
+        }
+
+        .player-number {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 4px 30px var(--accent-glow);
+            z-index: 3;
+            letter-spacing: -0.05em;
+            transition: transform 0.4s;
+        }
+
+        .player-card:hover .player-number {
+            transform: scale(1.15) translateX(4px);
+        }
+
+        .player-flag {
+            position: absolute;
+            top: 30px;
+            right: 24px;
+            font-size: 2rem;
+            z-index: 3;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        .player-content {
+            position: relative;
+            z-index: 3;
+            padding: 24px 28px 32px;
+            margin-top: -80px;
+        }
+
+        .player-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 6px;
+            color: #ffffff;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+        }
+
+        .player-tag {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 18px;
+            padding: 4px 12px;
+            border: 1px solid var(--accent);
+            border-radius: 100px;
+            background: var(--accent-glow);
+        }
+
+        .player-desc {
+            font-size: 0.95rem;
+            color: #a8b2d1;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            min-height: 76px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b7494;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        .player-accent-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+            z-index: 4;
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .player-card:hover .player-accent-line {
+            width: 100%;
+        }
+
+        /* ========== COMPARISON SECTION ========== */
+        .compare-section {
+            position: relative;
+            z-index: 5;
+            padding: 80px 24px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .compare-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .compare-header h2 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff, #8e97b5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .compare-header p {
+            color: #6b7494;
+            font-size: 1rem;
+        }
+
+        .compare-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: rgba(20, 24, 36, 0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #8e97b5;
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #7f5af0, #5a3fd4);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 12px 28px -10px #7f5af0cc;
+        }
+
+        .stat-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 36px;
+        }
+
+        .stat-bar-item {
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-bar-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .stat-bar-label span:first-child {
+            font-size: 1rem;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .stat-bar-label span:last-child {
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        .bar-track {
+            position: relative;
+            height: 14px;
+            background: rgba(20, 24, 36, 0.9);
+            border-radius: 100px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .bar-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 100px;
+            width: 0%;
+            transition: width 1.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s linear infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .bar-messi {
+            background: linear-gradient(90deg, #75aadb, #1e3a8a);
+            box-shadow: 0 0 20px #75aadb80;
+        }
+
+        .bar-ronaldo {
+            background: linear-gradient(90deg, #ff4d6d, #7a1224);
+            box-shadow: 0 0 20px #ff4d6d80;
+        }
+
+        .bar-neymar {
+            background: linear-gradient(90deg, #3ddc84, #0d5e2f);
+            box-shadow: 0 0 20px #3ddc8480;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #a8b2d1;
+            font-weight: 500;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        footer {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 50px 20px;
+            color: #4f5674;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        footer .heart {
+            color: #ff4d6d;
+            animation: beat 1.4s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .players-grid { padding: 24px 16px 60px; gap: 20px; }
+            .player-name { font-size: 1.8rem; }
+            .player-number { font-size: 3rem; }
+            .compare-section { padding: 60px 16px; }
+            .legend { gap: 16px; }
+            .legend-item { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="glow-orb glow-messi" id="orbMessi"></div>
+    <div class="glow-orb glow-ronaldo" id="orbRonaldo"></div>
+    <div class="glow-orb glow-neymar" id="orbNeymar"></div>
+
+    <section class="hero">
+        <h1>Three Legends<br>One Beautiful Game</h1>
+        <p>Messi. Ronaldo. Neymar. Different styles, different eras, same magic. Explore their unique DNA on the pitch.</p>
+        <div class="scroll-hint">
+            <span>scroll</span>
+            <div class="arrow"></div>
+        </div>
+    </section>
+
+    <div class="section-title reveal">
+        <h2>The Holy Trinity</h2>
+        <p>Click a card to feel the difference</p>
+    </div>
+
+    <div class="players-grid">
+
+        <div class="player-card reveal" style="--accent: #75aadb; --accent-glow: #75aadb66; --gradient: linear-gradient(135deg, #75aadb, #1e3a8a);">
+            <div class="player-image-wrap">
+                <div class="player-number">10</div>
+                <div class="player-flag">🇦🇷</div>
+                <img class="player-image" 
+                     src="https://images.unsplash.com/photo-1626248801379-51a0748a5f96?w=800&q=80" 
+                     alt="Lionel Messi">
+            </div>
+            <div class="player-content">
+                <div class="player-name">Lionel Messi</div>
+                <div class="player-tag">The Magician</div>
+                <p class="player-desc">Left foot like a wand. Dribbles through defenders as if they don't exist. The quiet genius who lets the ball do the talking.</p>
+                <div class="stats-row">
+                    <div class="stat">
+                        <div class="stat-value">820+</div>
+                        <div class="stat-label">Goals</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Ballon d'Or</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">44</div>
+                        <div class="stat-label">Trophies</div>
+                    </div>
+                </div>
+            </div>
+            <div class="player-accent-line"></div>
+        </div>
+
+        <div class="player-card reveal" style="--accent: #ff4d6d; --accent-glow: #ff4d6d66; --gradient: linear-gradient(135deg, #ff4d6d, #7a1224);">
+            <div class="player-image-wrap">
+                <div class="player-number">7</div>
+                <div class="player-flag">🇵🇹</div>
+                <img class="player-image" 
+                     src="https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=800&q=80" 
+                     alt="Cristiano Ronaldo">
+            </div>
+            <div class="player-content">
+                <div class="player-name">Cristiano Ronaldo</div>
+                <div class="player-tag">The Machine</div>
+                <p class="player-desc">Pure power, pure will, pure dedication. A goal-scoring phenomenon who defied age, physics, and every doubter. SIUUU!</p>
+                <div class="stats-row">
+                    <div class="stat">
+                        <div class="stat-value">920+</div>
+                        <div class="stat-label">Goals</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Ballon d'Or</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">35</div>
+                        <div class="stat-label">Trophies</div>
+                    </div>
+                </div>
+            </div>
+            <div class="player-accent-line"></div>
+        </div>
+
+        <div class="player-card reveal" style="--accent: #3ddc84; --accent-glow: #3ddc8466; --gradient: linear-gradient(135deg, #3ddc84, #0d5e2f);">
+            <div class="player-image-wrap">
+                <div class="player-number">10</div>
+                <div class="player-flag">🇧🇷</div>
+                <img class="player-image" 
+                     src="https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800&q=80" 
+                     alt="Neymar Jr">
+            </div>
+            <div class="player-content">
+                <div class="player-name">Neymar Jr</div>
+                <div class="player-tag">The Artist</div>
+                <p class="player-desc">Samba flair with every touch. Rainbow flicks, no-look passes, and a smile that lights up the stadium. Football as joy.</p>
+                <div class="stats-row">
+                    <div class="stat">
+                        <div class="stat-value">430+</div>
+                        <div class="stat-label">Goals</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Ballon d'Or</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">30+</div>
+                        <div class="stat-label">Trophies</div>
+                    </div>
+                </div>
+            </div>
+            <div class="player-accent-line"></div>
+        </div>
+
+    </div>
+
+    <section class="compare-section reveal">
+        <div class="compare-header">
+            <h2>Head to Head</h2>
+            <p>Compare their signature traits — click a tab to switch attribute</p>
+        </div>
+
+        <div class="compare-tabs">
+            <button class="tab-btn active" data-tab="dribbling">⚽ Dribbling</button>
+            <button class="tab-btn" data-tab="shooting">🎯 Shooting</button>
+            <button class="tab-btn" data-tab="speed">⚡ Speed</button>
+            <button class="tab-btn" data-tab="vision">👁️ Vision</button>
+            <button class="tab-btn" data-tab="flair">✨ Flair</button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#75aadb; color:#75aadb;"></div>
+                Messi
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#ff4d6d; color:#ff4d6d;"></div>
+                Ronaldo
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#3ddc84; color:#3ddc84;"></div>
+                Neymar
+            </div>
+        </div>
+
+        <div class="stat-bars" id="statBars"></div>
+    </section>
+
+    <footer>
+        Made with <span class="heart">❤</span> for the beautiful game · 2026
+    </footer>
+
+    <script>
+        const statsData = {
+            dribbling: { label: 'Dribbling', messi: 97, ronaldo: 84, neymar: 95 },
+            shooting:  { label: 'Shooting',  messi: 92, ronaldo: 95, neymar: 86 },
+            speed:     { label: 'Speed',     messi: 82, ronaldo: 89, neymar: 91 },
+            vision:    { label: 'Vision & Passing', messi: 96, ronaldo: 84, neymar: 92 },
+            flair:     { label: 'Flair & Skills',   messi: 94, ronaldo: 85, neymar: 98 }
+        };
+
+        const barsContainer = document.getElementById('statBars');
+
+        function renderBars(key) {
+            const data = statsData[key];
+            barsContainer.innerHTML = '';
+
+            const players = [
+                { name: 'Messi', value: data.messi, cls: 'bar-messi' },
+                { name: 'Ronaldo', value: data.ronaldo, cls: 'bar-ronaldo' },
+                { name: 'Neymar', value: data.neymar, cls: 'bar-neymar' }
+            ];
+
+            players.forEach((p, i) => {
+                const item = document.createElement('div');
+                item.className = 'stat-bar-item';
+                item.style.animationDelay = `${i * 0.08}s`;
+                item.innerHTML = `
+                    <div class="stat-bar-label">
+                        <span>${p.name}</span>
+                        <span>${p.value}</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill ${p.cls}" style="width: 0%;"></div>
+                    </div>
+                `;
+                barsContainer.appendChild(item);
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const fill = item.querySelector('.bar-fill');
+                        fill.style.width = p.value + '%';
+                    });
+                });
+            });
+        }
+
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderBars(btn.dataset.tab);
+            });
+        });
+
+        renderBars('dribbling');
+
+        const orbMessi = document.getElementById('orbMessi');
+        const orbRonaldo = document.getElementById('orbRonaldo');
+        const orbNeymar = document.getElementById('orbNeymar');
+
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5);
+            const y = (e.clientY / window.innerHeight - 0.5);
+
+            orbMessi.style.transform = `translate(${x * 60}px, ${y * 60}px)`;
+            orbRonaldo.style.transform = `translate(${x * -80}px, ${y * -60}px)`;
+            orbNeymar.style.transform = `translate(${x * 40}px, ${y * -80}px)`;
+        });
+
+        const revealEls = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+        revealEls.forEach(el => revealObserver.observe(el));
+
+        document.querySelectorAll('.player-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.style.transform = 'scale(0.97)';
+                setTimeout(() => { card.style.transform = ''; }, 150);
+            });
+        });
+
+        const barsSection = document.querySelector('.compare-section');
+        let barsAnimated = false;
+        const barsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !barsAnimated) {
+                    barsAnimated = true;
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab) renderBars(activeTab.dataset.tab);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        if (barsSection) barsObserver.observe(barsSection);
+    </script>
+</body>
+</html>
